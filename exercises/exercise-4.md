@@ -1,67 +1,50 @@
-# Exercise 4: React Refactoring
+## Exercise 4: MongoDB Indexes
 
-## Component refactored
+Index commands used:
 
-CourseForm.jsx (sample component provided in the exercise)
+db.courses.createIndex({ category: 1 })
 
-## Original issue
+db.courses.createIndex({ published: 1 })
 
-The component uses multiple useState hooks to manage individual form fields. This creates repetitive state handling and makes the component harder to maintain as more fields are added.
+db.courses.createIndex({ category: 1, published: 1 })
 
-## AI suggestion accepted
+Indexes created:
 
-Use a single formData state object and a reusable handleChange function to manage all form inputs.
+* category index
+* published index
+* compound category + published index
 
-Example:
+Query pattern supported:
 
-```jsx
-const [formData, setFormData] = useState({
-  title: initialData?.title || "",
-  category: initialData?.category || "",
-  duration: initialData?.duration || "",
-  published: initialData?.published || false,
-});
-```
+db.courses.find({ category: "Java" })
 
-and
+db.courses.find({ published: true })
 
-```jsx
-const handleChange = (e) => {
-  const { name, value, type, checked } = e.target;
+db.courses.find({
+category: "Java",
+published: true
+})
 
-  setFormData((previousData) => ({
-    ...previousData,
-    [name]: type === "checkbox" ? checked : value,
-  }));
-};
-```
+Why these indexes may help:
 
-## AI suggestion rejected
+Indexes allow MongoDB to find matching documents more efficiently and reduce full collection scans.
 
-Using a third-party form library.
+Why category may need an index:
 
-Reason:
+Applications often filter records by category. An index helps MongoDB quickly locate matching documents.
 
-The exercise requirements specifically state not to introduce a new form library.
+Why published may need an index:
 
-## What changed
+Applications frequently show only published content. An index improves performance when filtering by publication status.
 
-1. Replaced multiple useState hooks with a single formData object.
-2. Added a reusable handleChange function.
-3. Reduced duplicated state update code.
-4. Kept the same user interface and behaviour.
+Why category + published may be useful together:
 
-## How I tested the form
+Many queries filter by both category and published status. A compound index can optimize these combined searches.
 
-I reviewed the component logic and verified that:
+Why we should not index every field:
 
-* Title field updates correctly.
-* Category field updates correctly.
-* Duration field updates correctly.
-* Published checkbox updates correctly.
-* Form submission still passes the same data structure.
-* Validation behaviour remains unchanged.
+Indexes consume additional storage space and slow down insert, update, and delete operations because MongoDB must maintain every index.
 
-## Screenshot or explanation
+Possible downside of too many indexes:
 
-The refactored component improves readability and maintainability by storing all form values in a single state object. This reduces repetitive code while keeping the same UI and behaviour.
+Too many indexes increase storage requirements and can negatively affect write performance.
