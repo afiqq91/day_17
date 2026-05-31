@@ -1,51 +1,29 @@
-# Exercise 5: React Test Improvement
+## Exercise 5: MongoDB Query Performance
 
-## AI-generated test
+Query tested:
 
-```jsx
-test("renders CourseForm component", () => {
-  render(<CourseForm initialData={{}} onSubmit={() => {}} />);
+{ "role": "USER" }
 
-  expect(screen.getByPlaceholderText("Course title")).toBeInTheDocument();
-});
-```
+and
 
-## Issue found
+{ "email": "[test@plantation.com](mailto:test@plantation.com)" }
 
-The test only checks that the component renders. It does not verify that the form behaves correctly when the user enters data and submits the form.
+executionTimeMillis:
 
-## My improved version
+0 ms
 
-```jsx
-test("submits form with valid title", () => {
-  const mockSubmit = jest.fn();
+totalDocsExamined:
 
-  render(
-    <CourseForm
-      initialData={{}}
-      onSubmit={mockSubmit}
-    />
-  );
+3
 
-  fireEvent.change(
-    screen.getByPlaceholderText("Course title"),
-    {
-      target: { value: "React Fundamentals" }
-    }
-  );
+totalKeysExamined:
 
-  fireEvent.click(
-    screen.getByText("Save Course")
-  );
+0
 
-  expect(mockSubmit).toHaveBeenCalled();
-});
-```
+Was an index used?
 
-## Why the improved test is stronger
+No. MongoDB performed a COLLSCAN (Collection Scan) and examined all documents in the collection.
 
-The improved test verifies actual user behaviour by entering data and submitting the form. It checks that the onSubmit function is called, providing better confidence that the component works correctly.
+What does this tell you?
 
-## Test result
-
-Pass
+The queries worked, but MongoDB had to scan every document because no suitable index was available. For a small collection this has little impact, but for large collections it can significantly slow down queries. Creating indexes on frequently searched fields such as email can improve query performance by reducing the number of documents MongoDB needs to examine.
