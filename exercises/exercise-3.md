@@ -1,58 +1,33 @@
-# Exercise 3: Backend Test Improvement
+## Exercise 3: Error Handling
 
-## AI-generated test case
+File created:
 
-```java
-@Test
-void loginUser_shouldReturnLoginResponseWhenCredentialsAreValid() {
+src/main/java/com/example/instructor_api/exception/ApiErrorResponse.java
 
-    RegisterRequest request = new RegisterRequest();
-    request.email = "admin@admin.com";
-    request.password = "pwd12345";
+src/main/java/com/example/instructor_api/exception/GlobalExceptionHandler.java
 
-    LoginResponse response = authController.loginUser(request);
+Endpoint tested:
 
-    assertEquals("fake-jwt-token", response.getToken());
-    assertEquals("admin@admin.com", response.getEmail());
-    assertEquals("ADMIN", response.getRole());
+GET http://localhost:8080/api/v1/observe/fail
+
+Before error response:
+
+{
+"timestamp": "...",
+"status": 500,
+"error": "Internal Server Error",
+"trace": "java.lang.RuntimeException..."
 }
-```
 
-## Problem with AI-generated test
+After error response:
 
-The test only verifies the success scenario. It does not verify that the correct role is returned and does not test invalid credentials.
-
-## My improvement
-
-I added a failure test case and stronger assertions.
-
-```java
-@Test
-void loginUser_shouldThrowExceptionWhenCredentialsAreInvalid() {
-
-    RegisterRequest request = new RegisterRequest();
-    request.email = "wrong@admin.com";
-    request.password = "wrongpassword";
-
-    RuntimeException exception = assertThrows(
-            RuntimeException.class,
-            () -> authController.loginUser(request)
-    );
-
-    assertEquals(
-            "Invalid email or password",
-            exception.getMessage()
-    );
+{
+"status": 400,
+"error": "Bad Request",
+"message": "Demo failure for observability practice",
+"path": "/api/v1/observe/fail"
 }
-```
 
-## Why my version is better
+Why is the new error response better?
 
-The improved test verifies that invalid credentials are handled correctly and checks the exception message. This provides better coverage and ensures the method behaves correctly for both successful and failed login attempts.
-
-## Test result
-
-Pass
-
-```
-```
+The new error response is cleaner, more consistent, and easier to understand. It removes the large stack trace and only exposes useful information to the client, including the status code, error type, message, and request path. This improves readability, troubleshooting, and security by avoiding exposure of internal implementation details.
